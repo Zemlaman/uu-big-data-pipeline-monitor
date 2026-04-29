@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { getDatasets } from "../api/datasetApi";
 import { createPipeline, getPipelines, runPipeline } from "../api/pipelineApi";
-import { Link } from "react-router-dom";
+import { getRuns } from "../api/runApi";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -18,6 +19,7 @@ const initialForm = {
 function PipelinesPage() {
   const [pipelines, setPipelines] = useState([]);
   const [datasets, setDatasets] = useState([]);
+  const [runs, setRuns] = useState([]);
   const [formData, setFormData] = useState(initialForm);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -31,13 +33,15 @@ function PipelinesPage() {
       setLoading(true);
       setError("");
 
-      const [pipelineData, datasetData] = await Promise.all([
+      const [pipelineData, datasetData, runsData] = await Promise.all([
         getPipelines(),
         getDatasets(),
+        getRuns(),
       ]);
 
       setPipelines(pipelineData);
       setDatasets(datasetData);
+      setRuns(runsData);
 
       if (!formData.datasetId && datasetData.length > 0) {
         setFormData((previous) => ({
@@ -88,9 +92,7 @@ function PipelinesPage() {
       if (apiErrors && apiErrors.length > 0) {
         setFormError(apiErrors.join(", "));
       } else {
-        setFormError(
-          err.response?.data?.message || "Pipeline could not be created.",
-        );
+        setFormError(err.response?.data?.message || "Pipeline could not be created.");
       }
     } finally {
       setSaving(false);
@@ -107,12 +109,22 @@ function PipelinesPage() {
       setActionMessage(`Pipeline was started. New run status: ${run.status}.`);
       await loadData();
     } catch (err) {
-      setActionMessage(
-        err.response?.data?.message || "Pipeline could not be started.",
-      );
+      setActionMessage(err.response?.data?.message || "Pipeline could not be started.");
     } finally {
       setRunningId("");
     }
+  };
+
+  const getLastRunForPipeline = (pipelineId) => {
+    return runs.find((run) => run.pipelineId?._id === pipelineId);
+  };
+
+  const formatDate = (value) => {
+    if (!value) {
+      return "-";
+    }
+
+    return new Date(value).toLocaleString();
   };
 
   return (
@@ -225,43 +237,48 @@ function PipelinesPage() {
                     <th>Dataset</th>
                     <th>Schedule</th>
                     <th>Active</th>
+                    <th>Last run</th>
+                    <th>Last status</th>
                     <th>Action</th>
                   </tr>
                 </thead>
 
                 <tbody>
-                  {pipelines.map((pipeline) => (
-                    <tr key={pipeline._id}>
-                      <td>
-                        <Link
-                          className="table-link"
-                          to={`/pipelines/${pipeline._id}`}
-                        >
-                          {pipeline.name}
-                        </Link>
-                      </td>
-                      <td>{pipeline.datasetId?.name || "Unknown dataset"}</td>
-                      <td>{pipeline.schedule}</td>
-                      <td>
-                        <StatusBadge
-                          status={pipeline.active ? "active" : "inactive"}
-                        />
-                      </td>
-                      <td>
-                        <button
-                          className="small-button"
-                          onClick={() => handleRunPipeline(pipeline._id)}
-                          disabled={
-                            !pipeline.active || runningId === pipeline._id
-                          }
-                        >
-                          {runningId === pipeline._id
-                            ? "Starting..."
-                            : "Run pipeline"}
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
+                  {pipelines.map((pipeline) => {
+                    const lastRun = getLastRunForPipeline(pipeline._id);
+
+                    return (
+                      <tr key={pipeline._id}>
+                        <td>
+                          <Link className="table-link" to={`/pipelines/${pipeline._id}`}>
+                            {pipeline.name}
+                          </Link>
+                        </td>
+                        <td>{pipeline.datasetId?.name || "Unknown dataset"}</td>
+                        <td>{pipeline.schedule}</td>
+                        <td>
+                          <StatusBadge status={pipeline.active ? "active" : "inactive"} />
+                        </td>
+                        <td>{formatDate(lastRun?.startedAt)}</td>
+                        <td>
+                          {lastRun ? (
+                            <StatusBadge status={lastRun.status} />
+                          ) : (
+                            <span className="muted-text">No run</span>
+                          )}
+                        </td>
+                        <td>
+                          <button
+                            className="small-button"
+                            onClick={() => handleRunPipeline(pipeline._id)}
+                            disabled={!pipeline.active || runningId === pipeline._id}
+                          >
+                            {runningId === pipeline._id ? "Starting..." : "Run pipeline"}
+                          </button>
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

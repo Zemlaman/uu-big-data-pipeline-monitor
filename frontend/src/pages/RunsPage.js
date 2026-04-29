@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { getRuns, updateRunStatus } from "../api/runApi";
 import { Link } from "react-router-dom";
 import LoadingState from "../components/LoadingState";
@@ -12,6 +12,12 @@ function RunsPage() {
   const [updatingId, setUpdatingId] = useState("");
   const [error, setError] = useState("");
   const [actionMessage, setActionMessage] = useState("");
+
+  const [filters, setFilters] = useState({
+    pipelineId: "all",
+    status: "all",
+    dateFrom: "",
+  });
 
   const loadRuns = async () => {
     try {
@@ -85,6 +91,23 @@ function RunsPage() {
     }
   };
 
+  const handleFilterChange = (event) => {
+    const { name, value } = event.target;
+
+    setFilters((previous) => ({
+      ...previous,
+      [name]: value,
+    }));
+  };
+
+  const clearFilters = () => {
+    setFilters({
+      pipelineId: "all",
+      status: "all",
+      dateFrom: "",
+    });
+  };
+
   const formatDate = (value) => {
     if (!value) {
       return "-";
@@ -92,6 +115,57 @@ function RunsPage() {
 
     return new Date(value).toLocaleString();
   };
+
+  const calculateRuntime = (startedAt, finishedAt) => {
+    if (!startedAt) {
+      return "-";
+    }
+
+    const start = new Date(startedAt).getTime();
+    const end = finishedAt ? new Date(finishedAt).getTime() : Date.now();
+    const seconds = Math.round((end - start) / 1000);
+
+    if (seconds < 60) {
+      return `${seconds}s`;
+    }
+
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = seconds % 60;
+
+    return `${minutes}m ${remainingSeconds}s`;
+  };
+
+  const pipelinesForFilter = useMemo(() => {
+    const uniquePipelines = new Map();
+
+    runs.forEach((run) => {
+      if (run.pipelineId?._id) {
+        uniquePipelines.set(run.pipelineId._id, run.pipelineId.name);
+      }
+    });
+
+    return Array.from(uniquePipelines.entries()).map(([pipelineId, name]) => ({
+      pipelineId,
+      name,
+    }));
+  }, [runs]);
+
+  const filteredRuns = useMemo(() => {
+    return runs.filter((run) => {
+      const matchesPipeline =
+        filters.pipelineId === "all" || run.pipelineId?._id === filters.pipelineId;
+
+      const matchesStatus =
+        filters.status === "all" || run.status === filters.status;
+
+      const matchesDate =
+        !filters.dateFrom ||
+        new Date(run.startedAt).getTime() >=
+          new Date(`${filters.dateFrom}T00:00:00`).getTime();
+
+      return matchesPipeline && matchesStatus && matchesDate;
+    });
+  }, [runs, filters]);
 
   return (
     <section>
@@ -108,6 +182,59 @@ function RunsPage() {
 
       {actionMessage && <div className="info-message">{actionMessage}</div>}
 
+      <div className="card filter-card">
+        <h2>Filters</h2>
+
+        <div className="filter-grid">
+          <label>
+            Pipeline
+            <select
+              name="pipelineId"
+              value={filters.pipelineId}
+              onChange={handleFilterChange}
+            >
+              <option value="all">All pipelines</option>
+              {pipelinesForFilter.map((pipeline) => (
+                <option key={pipeline.pipelineId} value={pipeline.pipelineId}>
+                  {pipeline.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
+          <label>
+            Status
+            <select
+              name="status"
+              value={filters.status}
+              onChange={handleFilterChange}
+            >
+              <option value="all">All statuses</option>
+              <option value="running">Running</option>
+              <option value="success">Success</option>
+              <option value="failed">Failed</option>
+              <option value="pending">Pending</option>
+            </select>
+          </label>
+
+          <label>
+            Started from
+            <input
+              type="date"
+              name="dateFrom"
+              value={filters.dateFrom}
+              onChange={handleFilterChange}
+            />
+          </label>
+
+          <div className="filter-actions">
+            <button className="secondary-button" type="button" onClick={clearFilters}>
+              Clear filters
+            </button>
+          </div>
+        </div>
+      </div>
+
       <div className="card table-card">
         <h2>Run list</h2>
 
@@ -119,7 +246,11 @@ function RunsPage() {
           <EmptyState message="No runs have been created yet. Start a pipeline first." />
         )}
 
-        {!loading && !error && runs.length > 0 && (
+        {!loading && !error && runs.length > 0 && filteredRuns.length === 0 && (
+          <EmptyState message="No runs match the selected filters." />
+        )}
+
+        {!loading && !error && filteredRuns.length > 0 && (
           <div className="table-wrapper">
             <table>
               <thead>
@@ -128,6 +259,7 @@ function RunsPage() {
                   <th>Status</th>
                   <th>Started at</th>
                   <th>Finished at</th>
+                  <th>Runtime</th>
                   <th>Records</th>
                   <th>Error</th>
                   <th>Actions</th>
@@ -135,7 +267,7 @@ function RunsPage() {
               </thead>
 
               <tbody>
-                {runs.map((run) => (
+                {filteredRuns.map((run) => (
                   <tr key={run._id}>
                     <td>
                       <Link className="table-link" to={`/runs/${run._id}`}>
@@ -147,6 +279,7 @@ function RunsPage() {
                     </td>
                     <td>{formatDate(run.startedAt)}</td>
                     <td>{formatDate(run.finishedAt)}</td>
+                    <td>{calculateRuntime(run.startedAt, run.finishedAt)}</td>
                     <td>{run.recordsProcessed}</td>
                     <td>{run.errorMessage || "-"}</td>
                     <td>

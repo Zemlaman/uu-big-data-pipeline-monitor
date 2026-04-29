@@ -26,6 +26,48 @@ const createFailedRunAlerts = async (run) => {
   return createdAlerts;
 };
 
+const createRuntimeExceededAlerts = async (run) => {
+  if (!run.startedAt || !run.finishedAt) {
+    return [];
+  }
+
+  const runtimeMilliseconds =
+    new Date(run.finishedAt).getTime() - new Date(run.startedAt).getTime();
+
+  const runtimeMinutes = runtimeMilliseconds / 1000 / 60;
+
+  const rules = await AlertRule.find({
+    pipelineId: run.pipelineId,
+    type: "RUNTIME_EXCEEDED",
+    enabled: true,
+  });
+
+  const createdAlerts = [];
+
+  for (const rule of rules) {
+    if (!rule.thresholdMinutes) {
+      continue;
+    }
+
+    if (runtimeMinutes > rule.thresholdMinutes) {
+      const roundedRuntime = Math.round(runtimeMinutes * 100) / 100;
+
+      const alert = await AlertEvent.create({
+        ruleId: rule._id,
+        pipelineId: run.pipelineId,
+        runId: run._id,
+        message: `Pipeline run exceeded runtime threshold: ${roundedRuntime} minutes > ${rule.thresholdMinutes} minutes`,
+        severity: rule.severity,
+        status: "open",
+      });
+
+      createdAlerts.push(alert);
+    }
+  }
+
+  return createdAlerts;
+};
+
 const getAlerts = async () => {
   return AlertEvent.find()
     .populate("ruleId", "name type severity")
@@ -51,6 +93,7 @@ const getAlertById = async (id) => {
 
 module.exports = {
   createFailedRunAlerts,
+  createRuntimeExceededAlerts,
   getAlerts,
   getAlertById,
 };

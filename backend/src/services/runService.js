@@ -77,8 +77,12 @@ const updateRunStatus = async (id, data) => {
       await runningStep.save();
     }
 
-    createdAlerts = await alertService.createFailedRunAlerts(run);
+    const failedRunAlerts = await alertService.createFailedRunAlerts(run);
+    createdAlerts = [...createdAlerts, ...failedRunAlerts];
   }
+
+  const runtimeExceededAlerts = await alertService.createRuntimeExceededAlerts(run);
+  createdAlerts = [...createdAlerts, ...runtimeExceededAlerts];
 
   const updatedRun = await getRunById(run._id);
 

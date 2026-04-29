@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import { getRuns } from "../api/runApi";
 import { getPipelineById, runPipeline } from "../api/pipelineApi";
+import { getAlerts } from "../api/alertApi";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -12,6 +13,7 @@ function PipelineDetailPage() {
 
   const [pipeline, setPipeline] = useState(null);
   const [runs, setRuns] = useState([]);
+  const [alerts, setAlerts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [running, setRunning] = useState(false);
   const [error, setError] = useState("");
@@ -22,13 +24,15 @@ function PipelineDetailPage() {
       setLoading(true);
       setError("");
 
-      const [pipelineData, runsData] = await Promise.all([
+      const [pipelineData, runsData, alertsData] = await Promise.all([
         getPipelineById(id),
         getRuns(),
+        getAlerts(),
       ]);
 
       setPipeline(pipelineData);
       setRuns(runsData.filter((run) => run.pipelineId?._id === id));
+      setAlerts(alertsData.filter((alert) => alert.pipelineId?._id === id));
     } catch (err) {
       setError("Pipeline detail could not be loaded.");
     } finally {
@@ -51,7 +55,9 @@ function PipelineDetailPage() {
       setActionMessage(`Pipeline was started. New run status: ${run.status}.`);
       await loadData();
     } catch (err) {
-      setActionMessage(err.response?.data?.message || "Pipeline could not be started.");
+      setActionMessage(
+        err.response?.data?.message || "Pipeline could not be started.",
+      );
     } finally {
       setRunning(false);
     }
@@ -69,14 +75,16 @@ function PipelineDetailPage() {
     const successRuns = runs.filter((run) => run.status === "success").length;
     const failedRuns = runs.filter((run) => run.status === "failed").length;
     const runningRuns = runs.filter((run) => run.status === "running").length;
+    const openAlerts = alerts.filter((alert) => alert.status === "open").length;
 
     return {
       totalRuns: runs.length,
       successRuns,
       failedRuns,
       runningRuns,
+      openAlerts,
     };
-  }, [runs]);
+  }, [runs, alerts]);
 
   if (loading) {
     return <LoadingState />;
@@ -194,6 +202,11 @@ function PipelineDetailPage() {
           <span>Failed</span>
           <strong>{statistics.failedRuns}</strong>
         </div>
+
+        <div className="summary-card">
+          <span>Open alerts</span>
+          <strong>{statistics.openAlerts}</strong>
+        </div>
       </div>
 
       <div className="card table-card">
@@ -211,6 +224,7 @@ function PipelineDetailPage() {
                   <th>Finished at</th>
                   <th>Records</th>
                   <th>Error</th>
+                  <th>Detail</th>
                 </tr>
               </thead>
 
@@ -224,6 +238,57 @@ function PipelineDetailPage() {
                     <td>{formatDate(run.finishedAt)}</td>
                     <td>{run.recordsProcessed}</td>
                     <td>{run.errorMessage || "-"}</td>
+                    <td>
+                      <Link className="table-link" to={`/runs/${run._id}`}>
+                        Open run
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </div>
+
+      <div className="card table-card">
+        <h2>Pipeline alerts</h2>
+
+        {alerts.length === 0 ? (
+          <EmptyState message="This pipeline has no alerts yet." />
+        ) : (
+          <div className="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Severity</th>
+                  <th>Status</th>
+                  <th>Rule</th>
+                  <th>Run status</th>
+                  <th>Message</th>
+                  <th>Created at</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                {alerts.map((alert) => (
+                  <tr key={alert._id}>
+                    <td>
+                      <StatusBadge status={alert.severity} />
+                    </td>
+                    <td>
+                      <StatusBadge status={alert.status} />
+                    </td>
+                    <td>{alert.ruleId?.name || "Unknown rule"}</td>
+                    <td>
+                      <StatusBadge status={alert.runId?.status || "unknown"} />
+                    </td>
+                    <td>
+                      <Link className="table-link" to={`/alerts/${alert._id}`}>
+                        {alert.message}
+                      </Link>
+                    </td>
+                    <td>{formatDate(alert.createdAt)}</td>
                   </tr>
                 ))}
               </tbody>
