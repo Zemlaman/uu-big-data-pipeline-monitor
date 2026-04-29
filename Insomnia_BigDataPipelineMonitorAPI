@@ -1,0 +1,531 @@
+type: collection.insomnia.rest/5.0
+schema_version: "5.1"
+name: Big Data Pipeline Monitor API
+meta:
+  id: wrk_b7e10bbcc9c34a6ea47753a478cbde92
+  created: 1777476772948
+  modified: 1777476790735
+  description: ""
+collection:
+  - url: http://localhost:5000/api/datasets
+    name: Create dataset
+    meta:
+      id: req_ddf3efb2183848e7824aa6d100612d7a
+      created: 1777476773022
+      modified: 1777477772396
+      isPrivate: false
+      description: ""
+      sortKey: -1777476773022
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "customer_transactions",
+          "description": "Customer transactions from e-shop orders",
+          "owner": "analytics-team",
+          "schemaVersion": 1
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/datasets
+    name: Get all datasets
+    meta:
+      id: req_75fdc2e038304f2db570d639ff31554f
+      created: 1777476845633
+      modified: 1777478144824
+      isPrivate: false
+      description: ""
+      sortKey: -1777476772922
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/pipelines
+    name: Create pipeline
+    meta:
+      id: req_695da8de16564e7d9936d6f8d46605c8
+      created: 1777477074761
+      modified: 1777477428482
+      isPrivate: false
+      description: ""
+      sortKey: -1777477074761
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "datasetId": "69f224e44511ae0ad929e82c",
+          "name": "daily_aggregation2",
+          "description": "Daily aggregation of customer transactions",
+          "schedule": "0 2 * * *",
+          "active": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/pipelines
+    name: Get all pipelines
+    meta:
+      id: req_2c49330780b749afb20ac7227884dc1f
+      created: 1777477144278
+      modified: 1777478153161
+      isPrivate: false
+      description: ""
+      sortKey: -1777476923891.5
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/pipelines/69f2273699523f2074d51e61
+    name: Get pipeline by ID
+    meta:
+      id: req_d451d252f6df4e498ed81e5750ef9c65
+      created: 1777477786525
+      modified: 1777478438200
+      isPrivate: false
+      description: ""
+      sortKey: -1777476848456.75
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/pipelines/69f2273699523f2074d51e61/run
+    name: Run pipeline
+    meta:
+      id: req_4bd47a6bcff342418e950b1298644c67
+      created: 1777477823764
+      modified: 1777479153246
+      isPrivate: false
+      description: ""
+      sortKey: -1777476810739.375
+    method: POST
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/datasets/69f224e44511ae0ad929e82c
+    name: Get dataset by ID
+    meta:
+      id: req_d67c20955bc54d5c875e2c1ef807f7f0
+      created: 1777477837901
+      modified: 1777478426553
+      isPrivate: false
+      description: ""
+      sortKey: -1777476772822
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/runs
+    name: Get all runs
+    meta:
+      id: req_1894d4a78a304956839344a21353b03b
+      created: 1777478102721
+      modified: 1777478259110
+      isPrivate: false
+      description: ""
+      sortKey: -1777478132556
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/runs/69f22b67418df2fbc363ad1f
+    name: Get run by ID
+    meta:
+      id: req_74c8cc6ebf14478eb412f1ee091cf802
+      created: 1777478120147
+      modified: 1777478508291
+      isPrivate: false
+      description: ""
+      sortKey: -1777478132506
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/runs/69f22b67418df2fbc363ad1f
+    name: Update run status success
+    meta:
+      id: req_fc28fcd731b943c78ae73100bcbbe1d1
+      created: 1777478132456
+      modified: 1777479405685
+      isPrivate: false
+      description: ""
+      sortKey: -1777478132456
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "status": "success",
+          "recordsProcessed": 152340
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/runs/69f22df15d56e518d35c232f
+    name: Update run status failed
+    meta:
+      id: req_999bec4001c441a9bd948cf0ed13d5bd
+      created: 1777478333377
+      modified: 1777479168313
+      isPrivate: false
+      description: ""
+      sortKey: -1777477603608.5
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: >-
+        {
+          "status": "failed",
+          "recordsProcessed": 4200,
+          "errorMessage": "Transformation step failed because input schema is invalid"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/alert-rules
+    name: Create alert rule
+    meta:
+      id: req_45a01faface04f79bb151af356297345
+      created: 1777478736572
+      modified: 1777479330059
+      isPrivate: false
+      description: ""
+      sortKey: -1777479036889.5
+    method: POST
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "pipelineId": "69f2273699523f2074d51e61",
+          "name": "Failed run alert",
+          "type": "FAILED_RUN",
+          "severity": "high",
+          "enabled": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/alert-rules
+    name: Get all alert rules
+    meta:
+      id: req_3b9227da3fda448088a0d40df5644ea2
+      created: 1777478770398
+      modified: 1777478787824
+      isPrivate: false
+      description: ""
+      sortKey: -1777478770398
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/alert-rules/69f22c6c1cb631b6b54e898a
+    name: Get alert rule by ID
+    meta:
+      id: req_e808dbd7a4f341bb861e25eca7b22a69
+      created: 1777478799269
+      modified: 1777478834468
+      isPrivate: false
+      description: ""
+      sortKey: -1777478753485
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/alerts
+    name: Get all alerts
+    meta:
+      id: req_0deda94fd41b4c8d9fa8eccc8643d69e
+      created: 1777478840993
+      modified: 1777479306933
+      isPrivate: false
+      description: ""
+      sortKey: -1777479303481
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/alerts/
+    name: Get alert by ID
+    meta:
+      id: req_9c8f484c396541c1b6c60217071481c6
+      created: 1777479439019
+      modified: 1777479496422
+      isPrivate: false
+      description: ""
+      sortKey: -1777479170185.25
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/alert-rules/69f22c6c1cb631b6b54e898a
+    name: Delete alert rule
+    meta:
+      id: req_922de22dd4a24403ad8f6a71ed868b5a
+      created: 1777479449911
+      modified: 1777479582666
+      isPrivate: false
+      description: ""
+      sortKey: -1777478443020.5
+    method: DELETE
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "message": "Alert rule deleted successfully"
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/alert-rules/69f22faa5d56e518d35c2335
+    name: Update alert rule
+    meta:
+      id: req_81c4233c824e44618c56fc9177e0f4dc
+      created: 1777479507414
+      modified: 1777479615439
+      isPrivate: false
+      description: ""
+      sortKey: -1777478598252.75
+    method: PATCH
+    body:
+      mimeType: application/json
+      text: |-
+        {
+          "name": "Failed run alert - updated",
+          "severity": "critical",
+          "enabled": true
+        }
+    headers:
+      - name: Content-Type
+        value: application/json
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+  - url: http://localhost:5000/api/dashboard/summary
+    name: Get dashboard summary
+    meta:
+      id: req_bf47f1179f57488889c985373d6f8c95
+      created: 1777479777813
+      modified: 1777479789473
+      isPrivate: false
+      description: ""
+      sortKey: -1777479777813
+    method: GET
+    headers:
+      - name: User-Agent
+        value: insomnia/12.5.0
+        description: ""
+        disabled: false
+    settings:
+      renderRequestBody: true
+      encodeUrl: true
+      followRedirects: global
+      cookies:
+        send: true
+        store: true
+      rebuildPath: true
+cookieJar:
+  name: Default Jar
+  meta:
+    id: jar_ad6818faac2f7dac5662ed311eb80290cde101f2
+    created: 1777476772951
+    modified: 1777476772951
+environments:
+  name: Base Environment
+  meta:
+    id: env_ad6818faac2f7dac5662ed311eb80290cde101f2
+    created: 1777476772949
+    modified: 1777476772949
+    isPrivate: false
