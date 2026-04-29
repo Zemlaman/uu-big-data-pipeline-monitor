@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getAlerts } from "../api/alertApi";
+import { Link } from "react-router-dom";
 import LoadingState from "../components/LoadingState";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
@@ -78,7 +79,11 @@ function AlertsPage() {
               <tbody>
                 {alerts.map((alert) => (
                   <tr key={alert._id}>
-                    <td>{alert.pipelineId?.name || "Unknown pipeline"}</td>
+                    <td>
+                      <Link className="table-link" to={`/alerts/${alert._id}`}>
+                        {alert.pipelineId?.name || "Unknown pipeline"}
+                      </Link>
+                    </td>
                     <td>{alert.ruleId?.name || "Unknown rule"}</td>
                     <td>
                       <StatusBadge status={alert.severity} />

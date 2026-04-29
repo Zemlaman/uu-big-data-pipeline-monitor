@@ -8,7 +8,21 @@ import AlertsPage from "./pages/AlertsPage";
 import PipelineDetailPage from "./pages/PipelineDetailPage";
 import RunDetailPage from "./pages/RunDetailPage";
 import AlertRulesPage from "./pages/AlertRulesPage";
+import AlertDetailPage from "./pages/AlertDetailPage";
 import "./App.css";
+
+function NotFoundPage() {
+  return (
+    <section>
+      <div className="page-header">
+        <div>
+          <h1>Page not found</h1>
+          <p>The requested page does not exist.</p>
+        </div>
+      </div>
+    </section>
+  );
+}
 
 function App() {
   return (
@@ -23,6 +37,8 @@ function App() {
           <Route path="/pipelines/:id" element={<PipelineDetailPage />} />
           <Route path="/runs/:id" element={<RunDetailPage />} />
           <Route path="/alert-rules" element={<AlertRulesPage />} />
+          <Route path="/alerts/:id" element={<AlertDetailPage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </BrowserRouter>
